@@ -9,7 +9,7 @@ Business and STEM majors have complimentary skills but often struggle to find pe
 ## How It Works
 
 ![Architecture System diagram](docs/ConnectYou_CS_193.png)
-![Eisenhower Matrix (PDF)](docs/Eisenhower_Matrix.pdf)
+- [Eisenhower Matrix](docs/Eisenhower_Matrix.pdf)
 
 ## Tech Stack
 
