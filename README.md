@@ -8,8 +8,8 @@ Business and STEM majors have complimentary skills but often struggle to find pe
 
 ## How It Works
 
-![System diagram](docs/ConnectYou_CS_193.png)
-- [System Diagram (PDF)](docs/Eisenhower_Matrix.pdf)
+![Architecture System diagram](docs/ConnectYou_CS_193.png)
+- ![Eisenhower Matrix] (PDF)](docs/Eisenhower_Matrix.pdf)
 
 ## Tech Stack
 
@@ -30,11 +30,12 @@ npm run dev
 
 ## Usage
 
-How to actually run the thing, with examples.
+1. Open the folder in an IDE and run the command: `npm run dev`.
+2. SignUp/Login depending on your account status.
+3. Fill out the questionnare and build your profile.
+4. Go to the home page and check for people with similar interests. The user can even view their profiles. If the user wants to connect then there is a chatting feature.
+5. Chat and connect with each other. 
 
-```bash
-./backup.sh ~/Documents
-```
 
 ## Roadmap
 
