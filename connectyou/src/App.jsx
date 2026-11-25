@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaUserCircle } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "./firebase";
 
 function ConnectionAnimation() {
   return (
@@ -27,20 +31,64 @@ function ConnectionAnimation() {
 
 
 function App() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // error msgs
   const [emailError, setEmailError] = useState("");
   const [passError, setPassError] = useState("");
+  const [generalError, setGeneralError] = useState("");
 
-  function handleLogin(e) {
-    e.preventDefault();
-
-    // reset errors every time
+  function clearErrors() {
     setEmailError("");
     setPassError("");
+    setGeneralError("");
+  }
+
+  // checks if the user is also in the firestore "users" collection
+  // if yes -> go home, if no -> log them out again and show error
+  async function checkUserInDb(user) {
+    const snap = await getDoc(doc(db, "users", user.uid));
+
+    if (snap.exists()) {
+      navigate("/home");
+    } else {
+      await signOut(auth);
+      setGeneralError("No account found for this user. Please sign up first.");
+    }
+  }
+
+  function showError(err) {
+    console.log(err.code);
+
+    if (err.code === "auth/invalid-email") {
+      setEmailError("Enter a valid email");
+    } else if (err.code === "auth/user-not-found") {
+      setEmailError("No account with this email");
+    } else if (err.code === "auth/wrong-password") {
+      setPassError("Wrong password");
+    } else if (err.code === "auth/invalid-credential") {
+      setPassError("Incorrect email or password");
+    } else if (err.code === "auth/too-many-requests") {
+      setGeneralError("Too many tries, wait a bit and try again");
+    } else if (err.code === "auth/network-request-failed") {
+      setGeneralError("Network problem, check your internet");
+    } else if (err.code === "auth/popup-closed-by-user") {
+      setGeneralError("Google popup was closed");
+    } else {
+      setGeneralError("Something went wrong, try again");
+    }
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    
+    clearErrors();
 
     let ok = true;
 
@@ -60,19 +108,38 @@ function App() {
     // stop here if something is wrong
     if (!ok) return;
 
-    console.log(email, password);
-    // TODO login stuff goes here
+    setLoading(true);
+
+    try {
+      // step 1: firebase authentication
+      const result = await signInWithEmailAndPassword(auth, email, password);
+
+      // step 2: firestore
+      await checkUserInDb(result.user);
+    } catch (err) {
+      showError(err);
+    }
+
+    setLoading(false);
   }
 
-  function handleGoogleLogin() {
-    console.log("google clicked");
+  async function handleGoogleLogin() {
+    clearErrors();
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      await checkUserInDb(result.user);
+    } catch (err) {
+      showError(err);
+    }
   }
 
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#14111d] via-[#231c36] to-[#14111d] flex items-center justify-center p-6 text-white">
 
-      {/* blurry glow circles for the background */}
+
       <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-600 opacity-20 blur-3xl rounded-full"></div>
       <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-pink-500 opacity-10 blur-3xl rounded-full"></div>
 
@@ -102,10 +169,10 @@ function App() {
         <div className="flex flex-col justify-center px-2 py-4">
           <h1 className="text-3xl font-semibold mb-2">Welcome back</h1>
           <p className="text-sm text-gray-400 mb-6">
-            Don't have an account? <a href="#" className="text-white underline">Sign up</a>
+            Don't have an account? <a href="/signup" className="text-white underline">Sign up</a>
           </p>
 
-          {/* noValidate so the browser popup doesnt show, we use our own msgs */}
+
           <form onSubmit={handleLogin} noValidate className="flex flex-col gap-4">
 
             <div>
@@ -144,8 +211,10 @@ function App() {
 
             <a href="#" className="text-xs text-gray-400 text-right hover:text-white">Forgot password?</a>
 
-            <button type="submit" className="bg-[#6d5bb8] hover:bg-[#7c6bc8] active:scale-95 transition font-semibold py-3 rounded-lg">
-              Log in
+            {generalError && <p className="text-red-400 text-sm text-center">{generalError}</p>}
+
+            <button type="submit" disabled={loading} className="bg-[#6d5bb8] hover:bg-[#7c6bc8] active:scale-95 transition disabled:opacity-50 font-semibold py-3 rounded-lg">
+              {loading ? "Logging in..." : "Log in"}
             </button>
           </form>
 
