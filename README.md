@@ -39,10 +39,10 @@ npm run dev
 
 ## Roadmap
 
-- [ ] Gemma integration to assist users
-- [ ] Resume upload and parsing
-- [ ] Scheduling a meeting/call
-- [ ] Analytics
+- [ ] Login/Signup Page
+- [ ] Profile Page
+- [ ] Connecting people
+- [ ] Chatting Feature
 
 ## Author
 
