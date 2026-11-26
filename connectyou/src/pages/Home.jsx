@@ -95,10 +95,16 @@ function Home() {
 
   async function handleConnect() {
     try {
-      await addDoc(collection(db, "Connections"), {
+      //chatting doc framework
+      //every chat will have a seperate document with the users chatting and the messages and also sent by whom
+      await addDoc(collection(db, "chats"), {
         users: [auth.currentUser.uid, person.id],
         createdAt: serverTimestamp(),
+        messages: [],
+        messagesSentBy: [],
       });
+
+
       navigate("/chatting", { state: { otherUid: person.id, otherName: person.firstName } });
     } catch (err) {
       console.log(err);
