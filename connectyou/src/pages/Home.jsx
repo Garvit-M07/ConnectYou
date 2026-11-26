@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaGlobe, FaCommentDots, FaSignOutAlt, FaUserCircle, FaChevronRight, FaChevronLeft } from "react-icons/fa";
+import { FaGlobe, FaCommentDots, FaSignOutAlt, FaUserCircle, FaChevronRight, FaChevronLeft, FaUserFriends } from "react-icons/fa";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
@@ -236,9 +236,23 @@ function Home() {
           </div>
         </button>
 
+        <button onClick={() => navigate("/matching")} title="Matching" className={barBtn(false)}>
+        <div className="flex items-center gap-1.5 hover:cursor-pointer ">
+          <FaUserFriends /> <span className="hidden sm:inline hover:cursor-pointer">Matching</span>
+          </div>
+        </button>
+
         <button onClick={() => navigate("/chatting")} title="Chats" className={barBtn(false)}>
         <div className="flex items-center gap-1.5 hover:cursor-pointer ">
           <FaCommentDots /> <span className="hidden sm:inline hover:cursor-pointer">Chats</span>
+          </div>
+        </button>
+
+        
+
+        <button onClick={() => navigate("/profile")} title="Profile" className={barBtn(false)}>
+        <div className="flex items-center gap-1.5 hover:cursor-pointer ">
+          <FaUserCircle /> <span className="hidden sm:inline hover:cursor-pointer">Profile</span>
           </div>
         </button>
 
