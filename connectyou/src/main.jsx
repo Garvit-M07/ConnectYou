@@ -6,6 +6,7 @@ import App from "./App.jsx";
 import Signup from "./pages/Signup.jsx";
 import Home from "./pages/Home.jsx";
 import Chatting from "./pages/Chatting.jsx";
+import Conversation from "./pages/Conversation.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -15,6 +16,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/signup" element={<Signup />} />
         <Route path="/home" element={<Home />} />
         <Route path="/chatting" element={<Chatting />} />
+        <Route path="/chatting/:otherUid" element={<Conversation />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

@@ -102,6 +102,7 @@ function Home() {
         createdAt: serverTimestamp(),
         messages: [],
         messagesSentBy: [],
+        messagesTimestamp: [],
       });
 
 
