@@ -1,0 +1,198 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap");
+
+/*
+  CREDITS
+    https://codepen.io/perror12/pen/gbwZKQg  by perror12
+    https://codepen.io/turkunazg/pen/EayeWaZ  by turkunazg
+*/
+
+.orb-scene {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 170, 255, 0.15), transparent 25%),
+    radial-gradient(circle at 80% 30%, rgba(153, 0, 255, 0.14), transparent 25%),
+    radial-gradient(circle at 50% 80%, rgba(0, 255, 200, 0.10), transparent 30%),
+    linear-gradient(135deg, #03060f, #0b1020 45%, #050816);
+}
+
+.orb-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: orbDrift 10s linear infinite;
+  opacity: 0.35;
+}
+
+.orb-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: orbGlowFloat 8s ease-in-out infinite;
+}
+.orb-glow-1 { width: 260px; height: 260px; top: 15%; left: 10%; background: rgba(0, 153, 255, 0.18); }
+.orb-glow-2 { width: 320px; height: 320px; bottom: 10%; right: 10%; background: rgba(170, 0, 255, 0.14); animation-delay: -3s; }
+
+.orb-wrapper {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1000px;
+  pointer-events: none; /* only the orb is clickable */
+}
+
+.orb {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  transform-style: preserve-3d;
+  animation: orbFloat 4s ease-in-out infinite;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.orb-core {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,0.95), rgba(255,255,255,0.15) 15%, transparent 20%),
+    radial-gradient(circle at center, #59f3ff 0%, #1f7bff 35%, #7918ff 70%, rgba(10, 10, 40, 0.8) 100%);
+  box-shadow:
+    0 0 30px rgba(89, 243, 255, 0.7),
+    0 0 80px rgba(31, 123, 255, 0.35),
+    0 0 140px rgba(121, 24, 255, 0.2),
+    inset 0 0 30px rgba(255,255,255,0.25);
+  animation: orbPulseCore 2.8s ease-in-out infinite;
+}
+
+.orb-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 2px solid rgba(255,255,255,0.22);
+  border-radius: 50%;
+  transform-style: preserve-3d;
+}
+.orb-ring-1 { width: 250px; height: 90px; margin-left: -125px; margin-top: -45px; transform: rotateX(75deg); animation: orbSpin1 7s linear infinite; box-shadow: 0 0 25px rgba(0, 255, 255, 0.25); }
+.orb-ring-2 { width: 240px; height: 80px; margin-left: -120px; margin-top: -40px; transform: rotateY(70deg) rotateX(12deg); animation: orbSpin2 5s linear infinite reverse; border-color: rgba(144, 100, 255, 0.28); }
+.orb-ring-3 { width: 230px; height: 70px; margin-left: -115px; margin-top: -35px; transform: rotateY(-70deg) rotateX(12deg); animation: orbSpin3 6s linear infinite; border-color: rgba(0, 220, 255, 0.24); }
+
+.orb-particle {
+  position: absolute;
+  top: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(120,220,255,0.45), transparent 70%);
+  pointer-events: none;
+  animation: orbRise linear infinite;
+}
+
+@keyframes orbPulseCore {
+  0%, 100% { transform: scale(1); filter: hue-rotate(0deg); }
+  50% { transform: scale(1.08); filter: hue-rotate(35deg); }
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+  50% { transform: translateY(-18px) rotateZ(1deg); }
+}
+@keyframes orbSpin1 {
+  from { transform: rotateX(75deg) rotateZ(0deg); }
+  to   { transform: rotateX(75deg) rotateZ(360deg); }
+}
+@keyframes orbSpin2 {
+  from { transform: rotateY(70deg) rotateX(12deg) rotateZ(0deg); }
+  to   { transform: rotateY(70deg) rotateX(12deg) rotateZ(360deg); }
+}
+@keyframes orbSpin3 {
+  from { transform: rotateY(-70deg) rotateX(12deg) rotateZ(0deg); }
+  to   { transform: rotateY(-70deg) rotateX(12deg) rotateZ(-360deg); }
+}
+@keyframes orbRise {
+  0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(-120vh) scale(1.4); opacity: 0; }
+}
+@keyframes orbDrift {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(40px, 40px); }
+}
+@keyframes orbGlowFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -20px) scale(1.1); }
+}
+
+
+/* ---------- PANEL ---------- */
+
+.neo-card {
+  position: relative;
+  width: min(92vw, 400px);
+  padding: 28px 60px; /* extra space on both sides for the arrows */
+  border-radius: 20px;
+  background: rgba(20, 30, 60, 0.55);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 40px rgba(0,255,255,0.15), inset 0 0 30px rgba(0,255,255,0.1);
+  font-family: 'Orbitron', sans-serif;
+  color: #e0f7ff;
+  transition: transform .4s ease;
+}
+.neo-card:hover { transform: translateY(-6px) scale(1.01); }
+
+/* the colourful line that spins around the card */
+.neo-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, transparent, #00ffff, #7a00ff, transparent);
+  filter: blur(10px);
+  opacity: .6;
+  animation: neoGlowMove 6s linear infinite;
+  z-index: -1;
+}
+@keyframes neoGlowMove {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* scrolls inside the card if the profile is long */
+.neo-inner { max-height: 75vh; overflow-y: auto; }
+
+.neo-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px 22px;
+  background: transparent;
+  color: #0ff;
+  border: 1px solid #0ff;
+  border-radius: 30px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  font-family: inherit;
+  transition: all .3s ease;
+}
+.neo-btn:hover { background: #0ff; color: #000; box-shadow: 0 0 25px #0ff; }
+
+/* (skip) */
+.neo-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #0ff;
+  color: #0ff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all .3s ease;
+}
+.neo-arrow-left { left: 12px; right: auto; }
+.neo-arrow:hover { background: rgba(0, 255, 255, 0.2); box-shadow: 0 0 20px #0ff; }
