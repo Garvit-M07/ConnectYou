@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaGlobe, FaCommentDots, FaSignOutAlt, FaChevronRight } from "react-icons/fa";
+import { FaGlobe, FaCommentDots, FaSignOutAlt, FaChevronRight, FaUserFriends, FaUserCircle } from "react-icons/fa";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { auth, db } from "../firebase";
@@ -42,15 +42,10 @@ async function getCurrentUserChats(currentUid) {
 }
 
 function Chatting() {
+
   const navigate = useNavigate();
   const [chats, setChats] = useState([]);
   const [chatError, setChatError] = useState("");
-  const navItem = "flex items-center gap-2 rounded-full px-4 py-2.5 text-sm transition";
-
-  async function handleLogout() {
-    await signOut(auth);
-    navigate("/", { replace: true });
-  }
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (user) => {
@@ -72,6 +67,16 @@ function Chatting() {
       }
     });
   }, []);
+
+  // (there was a second handleLogout here, one is enough)
+  async function handleLogout() {
+    await signOut(auth);
+    navigate("/", { replace: true });
+  }
+
+  function barBtn(active) {
+    return "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm transition cursor-pointer " + (active ? "bg-[#6d5bb8] text-white" : "text-gray-300 hover:text-white");
+  }
 
   return (
     <div className="orb-scene text-white">
@@ -115,22 +120,30 @@ function Chatting() {
         </ul>
       </main>
 
-      <nav aria-label="Main navigation" className="fixed bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/10 bg-[#2c2937]/80 p-1.5 shadow-2xl backdrop-blur-md">
-        <Link to="/home" aria-label="Galaxy" className={`${navItem} text-gray-300 hover:text-white`}>
-          <FaGlobe aria-hidden="true" />
-          <span className="hidden sm:inline">Galaxy</span>
-        </Link>
+      {/* bottom bar */}
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-[#2c2937]/80 backdrop-blur-md border border-white/10 rounded-full p-1.5 shadow-2xl">
 
-        <Link to="/chatting" aria-label="Chats" aria-current="page" className={`${navItem} bg-[#6d5bb8] text-white`}>
-          <FaCommentDots aria-hidden="true" />
-          <span className="hidden sm:inline">Chats</span>
-        </Link>
-
-        <button type="button" onClick={handleLogout} aria-label="Log out" className={`${navItem} cursor-pointer text-gray-300 hover:text-white`}>
-          <FaSignOutAlt aria-hidden="true" />
-          <span className="hidden sm:inline">Log out</span>
+        <button onClick={() => navigate("/home")} title="Galaxy" className={barBtn(false)}>
+          <FaGlobe /> <span className="hidden sm:inline">Galaxy</span>
         </button>
-      </nav>
+
+        <button onClick={() => navigate("/matching")} title="Matching" className={barBtn(false)}>
+          <FaUserFriends /> <span className="hidden sm:inline">Matching</span>
+        </button>
+
+        {/* we are on the chats page so this one is highlighted */}
+        <button onClick={() => navigate("/chatting")} title="Chats" className={barBtn(true)}>
+          <FaCommentDots /> <span className="hidden sm:inline">Chats</span>
+        </button>
+
+        <button onClick={() => navigate("/profile")} title="Profile" className={barBtn(false)}>
+          <FaUserCircle /> <span className="hidden sm:inline">Profile</span>
+        </button>
+
+        <button onClick={handleLogout} title="Log out" className={barBtn(false)}>
+          <FaSignOutAlt /> <span className="hidden sm:inline">Log out</span>
+        </button>
+      </div>
     </div>
   );
 }
