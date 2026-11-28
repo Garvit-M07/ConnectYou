@@ -13,6 +13,7 @@ function Matching() {
 
     useEffect(() => {
     // if user logs out, redirect to login page
+    //we dont want to carry out functions if user is not logged in, so we listen for any changes in the authentication state of the user
     const unsub = onAuthStateChanged(auth, async (user) => {
         if (!user) {
         navigate("/");
@@ -35,6 +36,7 @@ function Matching() {
     });
 
     return () => unsub();   // stop listening when the page closes
+    
     }, []);
 
   async function handleLogout() {
@@ -59,41 +61,44 @@ function Matching() {
 
 
 
-      <main className="relative z-10 mx-auto w-full max-w-2xl px-4 pt-8 pb-28">
-        {/* content */}
+    <main className="relative z-10 w-full px-4 pt-8 pb-28 sm:px-8">
 
-        {/*search bar */}
-        <div className="search-wrapper">
-            <div className="search-container" id="searchContainer">
+    {/* search bar (mx-auto keeps it in the middle) */}
+    <div className="search-wrapper mx-auto">
+        <div className="search-container" id="searchContainer">
 
+        <div className="corner top-left"></div>
+        <div className="corner top-right"></div>
+        <div className="corner bottom-left"></div>
+        <div className="corner bottom-right"></div>
 
-                <div className="corner top-left"></div>
-                <div className="corner top-right"></div>
-                <div className="corner bottom-left"></div>
-                <div className="corner bottom-right"></div>
+        <div className="search-glow"></div>
 
-                
-                <div className="search-glow"></div>
-
-            
-                <div className="search-bar">
-                    <div className="search-bar-inner">
-                        <input type="text" id="searchInput" placeholder="Search.." spellCheck="false" />
-                        <button id="searchButton" className="search-btn" aria-label="Search">
-                            <svg className="search-icon" viewBox="0 0 24 24" fill="none">
-                                <circle cx="10" cy="10" r="6" stroke="currentColor" strokeWidth="1.5" />
-                                <path d="M14.5 14.5L19 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                <circle cx="10" cy="10" r="2" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-                            </svg>
-                            <div className="btn-glow"></div>
-                        </button>
-                    </div>
-                </div>
-
+        <div className="search-bar">
+            <div className="search-bar-inner">
+            <input type="text" id="searchInput" placeholder="Search Majors.." spellCheck="false" />
+            <button id="searchButton" className="search-btn" aria-label="Search">
+                <svg className="search-icon" viewBox="0 0 24 24" fill="none">
+                <circle cx="10" cy="10" r="6" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M14.5 14.5L19 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <circle cx="10" cy="10" r="2" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+                </svg>
+                <div className="btn-glow"></div>
+            </button>
             </div>
         </div>
 
-      </main>
+        </div>
+    </div>
+
+    {/* grid of square cards (starts from the left) */}
+    <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div>
+            
+        </div>
+
+    </div>
+    </main>
 
       {/* bottom bar */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-[#2c2937]/80 backdrop-blur-md border border-white/10 rounded-full p-1.5 shadow-2xl">
@@ -102,7 +107,7 @@ function Matching() {
           <FaGlobe /> <span className="hidden sm:inline">Galaxy</span>
         </button>
 
-        <button onClick={() => navigate("/matching")} title="Matching" className={barBtn(false)}>
+        <button onClick={() => navigate("/matching")} title="Matching" className={barBtn(true)}>
           <FaUserFriends /> <span className="hidden sm:inline">Matching</span>
         </button>
 

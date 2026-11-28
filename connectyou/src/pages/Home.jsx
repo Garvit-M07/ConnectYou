@@ -7,7 +7,7 @@ import { auth, db } from "../firebase";
 import "./Home.css";
 
 // credits
-// orb: https://codepen.io/perror12/pen/gbwZKQg
+// orb + bg particles: https://codepen.io/perror12/pen/gbwZKQg 
 // panel: https://codepen.io/turkunazg/pen/EayeWaZ 
 
 const particles = Array.from({ length: 24 }, () => ({
@@ -137,13 +137,13 @@ function Home() {
       ))}
 
 
-      {/* zoom div */}
+      {/* zoom by simply scaling the orb and blurring it which gives a nice effect */}
       <div className={"absolute inset-0 transition-all duration-700 " + (zoomed ? "scale-[3] opacity-20 blur-sm" : "")}>
 
         <div className="relative z-10 px-4 pt-6">
           <div className="text-2xl font-bold mb-6">ConnectYou</div>
-          <h1 className="text-2xl sm:text-3xl font-semibold mb-1">Hello {name || "there"} 👋</h1>
-          <p className="text-sm text-gray-400">Welcome to ConnectYou. Find your people.</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold mb-1">Hello {name || "there"} !</h1>
+          <p className="text-sm text-gray-400">Welcome to ConnectYou. Explore the spiderverse of connections.</p>
           {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
         </div>
 
@@ -156,7 +156,7 @@ function Home() {
           </div>
         </div>
 
-        <p className="absolute bottom-28 w-full text-center text-xs sm:text-sm tracking-[0.3em] uppercase text-cyan-100/70">Tap to meet people</p>
+        <p className="absolute bottom-28 w-full text-center text-xs sm:text-sm tracking-[0.3em] uppercase text-cyan">Tap to meet people</p>
       </div>
 
 
@@ -170,7 +170,7 @@ function Home() {
             <div className="neo-inner">
 
               {/* top row */}
-              <div className="flex items-center justify-between mb-4 text-xs text-cyan-300 tracking-widest">
+              <div className="flex items-center justify-between mb-4 text-xs text-cyan-300 tracking-widest"> {/*set letter spacing*/}
                 <span>PROFILE {index + 1}/{people.length}</span>
                 <button onClick={closePanel} className="justify-end hover:text-white cursor-pointer">✕</button>
               </div>
