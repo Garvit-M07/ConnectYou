@@ -8,6 +8,7 @@ import Home from "./pages/Home.jsx";
 import Chatting from "./pages/Chatting.jsx";
 import Conversation from "./pages/Conversation.jsx";
 import Matching from "./pages/Matching.jsx";
+import Profile from "./pages/Profile.jsx"
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/chatting" element={<Chatting />} />
         <Route path="/chatting/:otherUid" element={<Conversation />} />
         <Route path="/matching" element={<Matching />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>
