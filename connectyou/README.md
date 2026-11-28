@@ -1,16 +1,52 @@
-# React + Vite
+# ConnectYou
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A project for CS19300 Class that connects STEM and Business Majors together to offer a collaborative environment for overlapping skills.
 
-Currently, two official plugins are available:
+## The Problem
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Business and STEM majors have complimentary skills but often struggle to find people of similar interests through colleges. Most students just rely on luck or their friends to find a teammate with similar interest or skill. This project simplifies that search by linking business and STEM majors with overlapping and shared interests, so as to amplify a collaborative environment.
 
-## React Compiler
+## How It Works
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+![Architecture System diagram](docs/ConnectYou_CS_193.png)
 
-## Expanding the ESLint configuration
+- [Eisenhower Matrix](docs/Eisenhower_Matrix.pdf)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tech Stack
+
+- **Language:** JavaScript, HTML, CSS
+- **Libraries:** ReactJs, Tailwind CSS
+- **External tools:** Github (git), Firebase (Firestore), GEMMA API.
+
+## Setup
+
+```bash
+git clone https://github.com/Garvit-M07/ConnectYou.git
+cd ConnectYou
+npm install
+cp .env.example .env #fill your own firebase values
+npm run dev
+```
+
+## Usage
+
+1. Open the folder in an IDE and run the command: `npm run dev`.
+2. SignUp/Login depending on your account status.
+3. Fill out the questionnare and build your profile.
+4. Go to the home page and check for people with similar interests. The user can even view their profiles. If the user wants to connect then there is a chatting feature.
+5. Chat and connect with each other.
+
+## Roadmap
+
+- [ ] Login/Signup Page
+- [ ] Profile Page
+- [ ] Connecting people
+- [ ] Chatting Feature
+
+## Scheduled Feature
+
+- [ ] Gemma API integration for better matchmaking
+
+## Author
+
+Garvit Maheshwari - [github.com/Garvit-M07](https://github.com/Garvit-M07)

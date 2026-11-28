@@ -1,18 +1,34 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { FaGlobe, FaCommentDots, FaSignOutAlt, FaUserFriends, FaUserCircle } from "react-icons/fa";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaSignOutAlt, FaUserCircle, FaChevronRight, FaChevronLeft, FaGlobe, FaUserFriends, FaCommentDots } from "react-icons/fa";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, query, where, addDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
+import "./Home.css";       // the navbar css is in here
 import "./Matching.css";
+
+const particles = Array.from({ length: 24 }, () => ({
+  left: Math.random() * 100,
+  size: Math.random() * 6 + 2,
+  duration: Math.random() * 4 + 5,
+  delay: Math.random() * 8,
+}));
+
 
 function Matching() {
     const navigate = useNavigate();
     const [person, setPerson] = useState([]);
-    const [filtered, setFiltered] = useState([]);   // the current user   // the list of users
+    const [filtered, setFiltered] = useState([]);   // the people that match the search
     // const [error, setError] = useState("");
     // const [index, setIndex] = useState(0);
     const [text, setText] = useState("");   // the text in the search bar
+    const [menuOpen, setMenuOpen] = useState(false);   // for the hamburger on mobile
+
+  // refs for the navbar stuff (instead of document.querySelector)
+  const navRef = useRef(null);
+  const menuRef = useRef(null);
+  const indicatorRef = useRef(null);
+  const glowRef = useRef(null);
 
 
     async function handleConnect(p) {
@@ -55,11 +71,11 @@ function Matching() {
 
     function searchOperation(searchText) {
         setText(searchText);
-        //filter as per major and not name
-        const filtered = person.filter(p => p.major.toLowerCase().includes(searchText.toLowerCase()));
+        //filter as per major and not name  (|| "" so it doesnt crash if someone has no major)
+        const filtered = person.filter(p => (p.major || "").toLowerCase().includes(searchText.toLowerCase()));
         setFiltered(filtered);
     }
-    
+
     useEffect(() => {
         // if the search bar is empty, show all people
         if (text === "") {
@@ -68,11 +84,11 @@ function Matching() {
 
     // if user logs out, redirect to login page
     //we dont want to carry out functions if user is not logged in, so we listen for any changes in the authentication state of the user
-    const unsub = onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-        navigate("/");
-        return;
-    }
+        const unsub = onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+            navigate("/");
+            return;
+        }
 
         try {
         const snap = await getDocs(collection(db, "users"));
@@ -90,33 +106,95 @@ function Matching() {
         }
     });
 
+    resetIndicator();
+
     return () => unsub();   // stop listening when the page closes
-    
+
     }, []);
+
+
+  // move the indicator under the link that the mouse is on
+  function moveIndicator(e) {
+    indicatorRef.current.style.width = e.currentTarget.offsetWidth + "px";
+    indicatorRef.current.style.left = e.currentTarget.offsetLeft + "px";
+  }
+
+  // when the mouse leaves the menu, go back to Matching (we are on this page)
+  function resetIndicator() {
+    const links = menuRef.current.querySelectorAll("a");
+    const matchingLink = links[1];
+    if (matchingLink) {
+      indicatorRef.current.style.width = matchingLink.offsetWidth + "px";
+      indicatorRef.current.style.left = matchingLink.offsetLeft + "px";
+    }
+  }
+
+  function goTo(e, path) {
+    e.preventDefault();
+    setMenuOpen(false);
+    navigate(path);
+  }
 
   async function handleLogout() {
     await signOut(auth);
     navigate("/", { replace: true });
   }
 
-  function barBtn(active) {
-    return "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm transition cursor-pointer " + (active ? "bg-[#6d5bb8] text-white" : "text-gray-300 hover:text-white");
-  }
-
   return (
     <div className="orb-scene text-white">
 
+      {particles.map((p, i) => (
+        <span key={i} className="orb-particle" style={{ left: p.left + "%", width: p.size, height: p.size, animationDuration: p.duration + "s", animationDelay: "-" + p.delay + "s" }}></span>
+      ))}
+
+      {/* navbar */}
+      <nav id="navbar" ref={navRef}>
+
+        <div className="mouse-glow" ref={glowRef}></div>
+
+        <div className="nav-shell">
+
+          <div className="logo" onClick={e => goTo(e, "/home")}>◈ ConnectYou</div>
+
+          <ul className="menu" ref={menuRef} onMouseLeave={resetIndicator}>
+
+            <li className="indicator" ref={indicatorRef}></li>
+
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/home")}><FaGlobe/>Galaxy</a></li>
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/matching")}> <FaUserFriends/>Matching</a></li>
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/chatting")}><FaCommentDots/>Chats</a></li>
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/profile")}><FaUserCircle/>Profile</a></li>
+
+          </ul>
+
+          <button className="logout-btn" onClick={handleLogout}>
+            <FaSignOutAlt /> Log out
+          </button>
+
+          <div className={"hamburger " + (menuOpen ? "active" : "")} onClick={() => setMenuOpen(!menuOpen)}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+        </div>
+
+      </nav>
+
+      <div className={"mobile-menu " + (menuOpen ? "active" : "")}>
+
+        <a href="#" onClick={e => goTo(e, "/home")}>Galaxy</a>
+        <a href="#" onClick={e => goTo(e, "/matching")}>Matching</a>
+        <a href="#" onClick={e => goTo(e, "/chatting")}>Chats</a>
+        <a href="#" onClick={e => goTo(e, "/profile")}>Profile</a>
+        <a href="#" onClick={handleLogout}>Log out</a>
+
+      </div>
 
 
-      <header className="relative z-10 px-4 pt-6">
-        <Link to="/home" className="text-2xl font-bold">
-          ConnectYou
-        </Link>
-      </header>
 
-
-
-    <main className="relative z-10 w-full px-4 pt-8 pb-28 sm:px-8">
+    {/* pt-32 so the fixed navbar doesnt cover the search bar */}
+    <main className="relative z-10 w-full px-4 pt-32 pb-10 sm:px-8">
 
     {/* search bar (mx-auto keeps it in the middle) */}
     <div className="search-wrapper mx-auto">
@@ -131,7 +209,7 @@ function Matching() {
 
         <div className="search-bar">
             <div className="search-bar-inner">
-            <input type="text" id="searchInput" placeholder="Search Majors.." spellCheck="false" onChange={(e) => searchOperation(e.target.value)} />
+            <input type="text" id="searchInput" placeholder="Search Majors.." spellCheck="false" onChange={e => searchOperation(e.target.value)} />
             <button id="searchButton" className="search-btn" aria-label="Search">
                 <svg className="search-icon" viewBox="0 0 24 24" fill="none">
                 <circle cx="10" cy="10" r="6" stroke="currentColor" strokeWidth="1.5" />
@@ -146,18 +224,19 @@ function Matching() {
         </div>
     </div>
 
-    {/* grid of square cards (starts from the left) */}
-    
+    {/* grid of cards (starts from the left) */}
+    {/* the card classes are match-card now, because neo-card from Home.css has !important and was breaking the size here */}
+
     <div className="mt-10 grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((p, i) => (
-        
-            <div className="neo-card">
-            <div className="neo-inner">
+        {filtered.map((p) => (
+
+            <div key={p.id} className="match-card">
+            <div className="match-card-inner">
 
               {/* top row */}
                 <div className="flex items-center justify-between mb-4 text-xs text-cyan-300 tracking-widest"> {/*set letter spacing*/}
                     <span>PROFILE</span>
-            </div>
+                </div>
 
                 <div className="flex items-center gap-3 mb-4">
                 <FaUserCircle size={56} color="#6aeeff" />
@@ -169,7 +248,7 @@ function Matching() {
 
               <div className="text-xs text-cyan-300 tracking-widest mb-1">COLLEGE</div>
               <p className="text-sm mb-3">{p.college}</p>
-            
+
                 {/* check for not empty */}
                     {p.bio && (
                         <div>
@@ -191,9 +270,10 @@ function Matching() {
                     )}
 
                     {p.linkedin && (
-                        <a href={p.linkedin} target="_blank" rel="noreferrer" className="text-sm text-purple-300 underline block mb-1">LinkedIn profile</a>
+                        <a href={p.linkedin} target="_blank" rel="noreferrer" className="text-sm text-cyan-300 underline block mb-1">LinkedIn profile</a>
                     )}
 
+                    {/* mt-auto pushes the button to the bottom of the card, pt-5 keeps a gap above it */}
                     <div className="mt-auto pt-5">
                     <button onClick={() => handleConnect(p)} className="connect-btn">
                         <span className="connect-btn-label">CONNECT</span>
@@ -202,37 +282,12 @@ function Matching() {
                     </div>
                     </div>
                 </div>
-            
+
         ))}
         </div>
-        
 
-   
     </main>
 
-      {/* bottom bar */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-[#2c2937]/80 backdrop-blur-md border border-white/10 rounded-full p-1.5 shadow-2xl">
-
-        <button onClick={() => navigate("/home")} title="Galaxy" className={barBtn(false)}>
-          <FaGlobe /> <span className="hidden sm:inline">Galaxy</span>
-        </button>
-
-        <button onClick={() => navigate("/matching")} title="Matching" className={barBtn(true)}>
-          <FaUserFriends /> <span className="hidden sm:inline">Matching</span>
-        </button>
-
-        <button onClick={() => navigate("/chatting")} title="Chats" className={barBtn(false)}>
-          <FaCommentDots /> <span className="hidden sm:inline">Chats</span>
-        </button>
-
-        <button onClick={() => navigate("/profile")} title="Profile" className={barBtn(false)}>
-          <FaUserCircle /> <span className="hidden sm:inline">Profile</span>
-        </button>
-
-        <button onClick={handleLogout} title="Log out" className={barBtn(false)}>
-          <FaSignOutAlt /> <span className="hidden sm:inline">Log out</span>
-        </button>
-      </div>
     </div>
   );
 }

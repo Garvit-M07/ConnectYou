@@ -5,6 +5,14 @@ import { FcGoogle } from "react-icons/fc";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
+import "./pages/Home.css";
+
+const particles = Array.from({ length: 24 }, () => ({
+  left: Math.random() * 100,
+  size: Math.random() * 6 + 2,
+  duration: Math.random() * 4 + 5,
+  delay: Math.random() * 8,
+}));
 
 function ConnectionAnimation() {
   return (
@@ -137,13 +145,17 @@ function App() {
 
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#14111d] via-[#231c36] to-[#14111d] flex items-center justify-center p-6 text-white">
+      <div className="orb-scene flex items-center justify-center p-6 text-white">
 
+      <div className="orb-grid"></div>
+      <div className="orb-glow orb-glow-1"></div>
+      <div className="orb-glow orb-glow-2"></div>
 
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-600 opacity-20 blur-3xl rounded-full"></div>
-      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-pink-500 opacity-10 blur-3xl rounded-full"></div>
+      {particles.map((p, i) => (
+        <span key={i} className="orb-particle" style={{ left: p.left + "%", width: p.size, height: p.size, animationDuration: p.duration + "s", animationDelay: "-" + p.delay + "s" }}></span>
+      ))}
 
-      <div className="relative w-full max-w-4xl bg-[#2c2937] rounded-2xl p-4 grid gap-6 md:grid-cols-2 md:min-h-[540px] shadow-2xl">
+      <div className="relative z-10 w-full max-w-4xl bg-[#2c2937] rounded-2xl p-4 grid gap-6 md:grid-cols-2 md:min-h-[540px] shadow-2xl">
 
         {/* left side, hidden on phone */}
         <div className="hidden md:flex flex-col justify-between bg-[#221f2c] rounded-xl p-6">
@@ -182,7 +194,7 @@ function App() {
                 autoFocus
                 autoComplete="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 className={"w-full bg-[#3b3748] px-4 py-3 rounded-lg outline-none border " + (emailError ? "border-red-400" : "border-transparent focus:border-purple-400")}
               />
               {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
@@ -195,7 +207,7 @@ function App() {
                   placeholder="Enter your password"
                   autoComplete="current-password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   className={"w-full bg-[#3b3748] px-4 py-3 pr-12 rounded-lg outline-none border " + (passError ? "border-red-400" : "border-transparent focus:border-purple-400")}
                 />
                 <button

@@ -1,10 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaGlobe, FaCommentDots, FaSignOutAlt, FaChevronRight, FaUserFriends, FaUserCircle } from "react-icons/fa";
+import { FaSignOutAlt, FaUserCircle, FaChevronRight, FaGlobe, FaUserFriends, FaCommentDots } from "react-icons/fa";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import "./Home.css";
+import "./Home.css";   // the navbar css is in here
+
+const particles = Array.from({ length: 24 }, () => ({
+  left: Math.random() * 100,
+  size: Math.random() * 6 + 2,
+  duration: Math.random() * 4 + 5,
+  delay: Math.random() * 8,
+}));
+
 
 async function getCurrentUserChats(currentUid) {
   const chatsQuery = query(
@@ -46,6 +54,13 @@ function Chatting() {
   const navigate = useNavigate();
   const [chats, setChats] = useState([]);
   const [chatError, setChatError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);   // for the hamburger on mobile
+
+  // refs for the navbar stuff (instead of document.querySelector)
+  const navRef = useRef(null);
+  const menuRef = useRef(null);
+  const indicatorRef = useRef(null);
+  const glowRef = useRef(null);
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (user) => {
@@ -68,14 +83,37 @@ function Chatting() {
     });
   }, []);
 
+  // put the indicator under "Chats" (3rd link) when the page loads
+  useEffect(() => {
+    resetIndicator();
+  }, []);
+
+  // move the indicator under the link that the mouse is on
+  function moveIndicator(e) {
+    indicatorRef.current.style.width = e.currentTarget.offsetWidth + "px";
+    indicatorRef.current.style.left = e.currentTarget.offsetLeft + "px";
+  }
+
+  // when the mouse leaves the menu, go back to Chats (we are on this page)
+  function resetIndicator() {
+    const links = menuRef.current.querySelectorAll("a");
+    const chatsLink = links[2];
+    if (chatsLink) {
+      indicatorRef.current.style.width = chatsLink.offsetWidth + "px";
+      indicatorRef.current.style.left = chatsLink.offsetLeft + "px";
+    }
+  }
+
+  function goTo(e, path) {
+    e.preventDefault();
+    setMenuOpen(false);
+    navigate(path);
+  }
+
   // (there was a second handleLogout here, one is enough)
   async function handleLogout() {
     await signOut(auth);
     navigate("/", { replace: true });
-  }
-
-  function barBtn(active) {
-    return "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm transition cursor-pointer " + (active ? "bg-[#6d5bb8] text-white" : "text-gray-300 hover:text-white");
   }
 
   return (
@@ -84,13 +122,57 @@ function Chatting() {
       <div aria-hidden="true" className="orb-glow orb-glow-1 pointer-events-none" />
       <div aria-hidden="true" className="orb-glow orb-glow-2 pointer-events-none" />
 
-      <header className="relative z-10 px-4 pt-6">
-        <Link to="/home" className="text-2xl font-bold">
-          ConnectYou
-        </Link>
-      </header>
+      {particles.map((p, i) => (
+        <span key={i} className="orb-particle" style={{ left: p.left + "%", width: p.size, height: p.size, animationDuration: p.duration + "s", animationDelay: "-" + p.delay + "s" }}></span>
+      ))}
+      
+      {/* navbar */}
+      <nav id="navbar" ref={navRef}>
 
-      <main className="relative z-10 mx-auto w-full max-w-2xl px-4 pt-8 pb-28 sm:px-6 sm:pt-12">
+        <div className="mouse-glow" ref={glowRef}></div>
+
+        <div className="nav-shell">
+
+          <div className="logo" onClick={e => goTo(e, "/home")}>◈ ConnectYou</div>
+
+          <ul className="menu" ref={menuRef} onMouseLeave={resetIndicator}>
+
+            <li className="indicator" ref={indicatorRef}></li>
+
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/home")}><FaGlobe/>Galaxy</a></li>
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/matching")}> <FaUserFriends/>Matching</a></li>
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/chatting")}><FaCommentDots/>Chats</a></li>
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/profile")}><FaUserCircle/>Profile</a></li>
+
+          </ul>
+
+          <button className="logout-btn" onClick={handleLogout}>
+            <FaSignOutAlt /> Log out
+          </button>
+
+          <div className={"hamburger " + (menuOpen ? "active" : "")} onClick={() => setMenuOpen(!menuOpen)}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+        </div>
+
+      </nav>
+
+      <div className={"mobile-menu " + (menuOpen ? "active" : "")}>
+
+        <a href="#" onClick={e => goTo(e, "/home")}>Galaxy</a>
+        <a href="#" onClick={e => goTo(e, "/matching")}>Matching</a>
+        <a href="#" onClick={e => goTo(e, "/chatting")}>Chats</a>
+        <a href="#" onClick={e => goTo(e, "/profile")}>Profile</a>
+        <a href="#" onClick={handleLogout}>Log out</a>
+
+      </div>
+
+
+      {/* pt-32 so the fixed navbar doesnt cover the title */}
+      <main className="relative z-10 mx-auto w-full max-w-2xl px-4 pt-32 pb-10 sm:px-6">
         <h1 className="mb-5 text-2xl font-bold tracking-tight sm:text-3xl">
           Your chats
         </h1>
@@ -120,30 +202,6 @@ function Chatting() {
         </ul>
       </main>
 
-      {/* bottom bar */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-[#2c2937]/80 backdrop-blur-md border border-white/10 rounded-full p-1.5 shadow-2xl">
-
-        <button onClick={() => navigate("/home")} title="Galaxy" className={barBtn(false)}>
-          <FaGlobe /> <span className="hidden sm:inline">Galaxy</span>
-        </button>
-
-        <button onClick={() => navigate("/matching")} title="Matching" className={barBtn(false)}>
-          <FaUserFriends /> <span className="hidden sm:inline">Matching</span>
-        </button>
-
-        {/* we are on the chats page so this one is highlighted */}
-        <button onClick={() => navigate("/chatting")} title="Chats" className={barBtn(true)}>
-          <FaCommentDots /> <span className="hidden sm:inline">Chats</span>
-        </button>
-
-        <button onClick={() => navigate("/profile")} title="Profile" className={barBtn(false)}>
-          <FaUserCircle /> <span className="hidden sm:inline">Profile</span>
-        </button>
-
-        <button onClick={handleLogout} title="Log out" className={barBtn(false)}>
-          <FaSignOutAlt /> <span className="hidden sm:inline">Log out</span>
-        </button>
-      </div>
     </div>
   );
 }

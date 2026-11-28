@@ -4,6 +4,14 @@ import { FaEye, FaEyeSlash, FaUserCircle } from "react-icons/fa";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
+import "./Home.css";
+
+const particles = Array.from({ length: 24 }, () => ({
+  left: Math.random() * 100,
+  size: Math.random() * 6 + 2,
+  duration: Math.random() * 4 + 5,
+  delay: Math.random() * 8,
+}));
 
 function ConnectionAnimation() {
   return (
@@ -163,11 +171,15 @@ function Signup() {
 
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#14111d] via-[#231c36] to-[#14111d] flex items-center justify-center p-6 text-white">
+    <div className="orb-scene flex items-center justify-center p-6 text-white">
 
+      <div className="orb-grid"></div>
+      <div className="orb-glow orb-glow-1"></div>
+      <div className="orb-glow orb-glow-2"></div>
 
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-600 opacity-20 blur-3xl rounded-full"></div>
-      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-pink-500 opacity-10 blur-3xl rounded-full"></div>
+      {particles.map((p, i) => (
+        <span key={i} className="orb-particle" style={{ left: p.left + "%", width: p.size, height: p.size, animationDuration: p.duration + "s", animationDelay: "-" + p.delay + "s" }}></span>
+      ))}
 
       <div className="relative w-full max-w-4xl bg-[#2c2937] rounded-2xl p-4 grid gap-6 md:grid-cols-2 shadow-2xl">
 

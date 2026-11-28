@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaGlobe, FaCommentDots, FaSignOutAlt, FaUserCircle, FaChevronRight, FaChevronLeft, FaUserFriends } from "react-icons/fa";
+import { FaSignOutAlt, FaUserCircle, FaChevronRight, FaChevronLeft, FaGlobe, FaUserFriends, FaCommentDots } from "react-icons/fa";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
@@ -29,6 +29,13 @@ function Home() {
   const [people, setPeople] = useState([]);
   const [index, setIndex] = useState(0);
   const [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false); // for the hamburger on mobile
+
+  // refs for the navbar stuff (instead of document.querySelector)
+  const navRef = useRef(null);
+  const menuRef = useRef(null);
+  const indicatorRef = useRef(null);
+  const glowRef = useRef(null);
 
   useEffect(() => {
     //if user logsout, redirect to login page
@@ -58,8 +65,31 @@ function Home() {
       }
     });
 
+    resetIndicator();
     return () => unsub();
   }, []);
+
+  // move the indicator under the link that the mouse is on
+  function moveIndicator(e) {
+    indicatorRef.current.style.width = e.currentTarget.offsetWidth + "px";
+    indicatorRef.current.style.left = e.currentTarget.offsetLeft + "px";
+  }
+
+  function resetIndicator() {
+    const links = menuRef.current.querySelectorAll("a");
+    const matchingLink = links[0];
+    if (matchingLink) {
+      indicatorRef.current.style.width = matchingLink.offsetWidth + "px";
+      indicatorRef.current.style.left = matchingLink.offsetLeft + "px";
+    }
+  }
+
+
+  function goTo(e, path) {
+    e.preventDefault();
+    setMenuOpen(false);
+    navigate(path);
+  }
 
   function handleOrbClick() {
     console.log("orb");
@@ -118,10 +148,6 @@ function Home() {
     navigate("/");
   }
 
-  function barBtn(active) {
-    return "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm transition " + (active ? "bg-[#6d5bb8] text-white" : "text-gray-300 hover:text-white");
-  }
-
   const person = people[index];
 
 
@@ -137,11 +163,55 @@ function Home() {
       ))}
 
 
+      {/* navbar */}
+      <nav id="navbar" ref={navRef}>
+
+        <div className="mouse-glow" ref={glowRef}></div>
+
+        <div className="nav-shell">
+
+          <div className="logo" onClick={e => goTo(e, "/home")}>◈ ConnectYou</div>
+
+          <ul className="menu" ref={menuRef} onMouseLeave={resetIndicator}>
+
+            <li className="indicator" ref={indicatorRef}></li>
+
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/home")}><FaGlobe/>Galaxy</a></li>
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/matching")}> <FaUserFriends/>Matching</a></li>
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/chatting")}><FaCommentDots/>Chats</a></li>
+            <li><a href="#" onMouseEnter={moveIndicator} onClick={e => goTo(e, "/profile")}><FaUserCircle/>Profile</a></li>
+
+          </ul>
+
+          <button className="logout-btn" onClick={handleLogout}>
+            <FaSignOutAlt /> Log out
+          </button>
+
+          <div className={"hamburger " + (menuOpen ? "active" : "")} onClick={() => setMenuOpen(!menuOpen)}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+        </div>
+
+      </nav>
+
+      <div className={"mobile-menu " + (menuOpen ? "active" : "")}>
+
+        <a href="#" onClick={e => goTo(e, "/home")}>Galaxy</a>
+        <a href="#" onClick={e => goTo(e, "/matching")}>Matching</a>
+        <a href="#" onClick={e => goTo(e, "/chatting")}>Chats</a>
+        <a href="#" onClick={e => goTo(e, "/profile")}>Profile</a>
+        <a href="#" onClick={handleLogout}>Log out</a>
+
+      </div>
+
+
       {/* zoom by simply scaling the orb and blurring it which gives a nice effect */}
       <div className={"absolute inset-0 transition-all duration-700 " + (zoomed ? "scale-[3] opacity-20 blur-sm" : "")}>
 
-        <div className="relative z-10 px-4 pt-6">
-          <div className="text-2xl font-bold mb-6">ConnectYou</div>
+        <div className="z-10 px-4 pt-32">
           <h1 className="text-2xl sm:text-3xl font-semibold mb-1">Hello {name || "there"} !</h1>
           <p className="text-sm text-gray-400">Welcome to ConnectYou. Explore the spiderverse of connections.</p>
           {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
@@ -156,7 +226,7 @@ function Home() {
           </div>
         </div>
 
-        <p className="absolute bottom-28 w-full text-center text-xs sm:text-sm tracking-[0.3em] uppercase text-cyan">Tap to meet people</p>
+        <p className="absolute bottom-10 w-full text-center text-xs sm:text-sm tracking-[0.3em] uppercase text-cyan-300">Tap to meet people</p>
       </div>
 
 
@@ -226,42 +296,6 @@ function Home() {
         )}
       </div>
 
-
-      {/* bottom bar */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-[#2c2937]/80 backdrop-blur-md border border-white/10 rounded-full p-1.5 shadow-2xl">
-
-        <button onClick={() => setView("galaxy")} title="Galaxy" className={barBtn(view === "galaxy")}>
-        <div className="flex items-center gap-1.5 hover:cursor-pointer ">
-            <FaGlobe /> <span className="hidden sm:inline ">Galaxy</span>
-          </div>
-        </button>
-
-        <button onClick={() => navigate("/matching")} title="Matching" className={barBtn(false)}>
-        <div className="flex items-center gap-1.5 hover:cursor-pointer ">
-          <FaUserFriends /> <span className="hidden sm:inline hover:cursor-pointer">Matching</span>
-          </div>
-        </button>
-
-        <button onClick={() => navigate("/chatting")} title="Chats" className={barBtn(false)}>
-        <div className="flex items-center gap-1.5 hover:cursor-pointer ">
-          <FaCommentDots /> <span className="hidden sm:inline hover:cursor-pointer">Chats</span>
-          </div>
-        </button>
-
-        
-
-        <button onClick={() => navigate("/profile")} title="Profile" className={barBtn(false)}>
-        <div className="flex items-center gap-1.5 hover:cursor-pointer ">
-          <FaUserCircle /> <span className="hidden sm:inline hover:cursor-pointer">Profile</span>
-          </div>
-        </button>
-
-        <button onClick={handleLogout} title="Log out" className={barBtn(false)}>
-          <div className="flex items-center gap-1.5 hover:cursor-pointer ">
-          <FaSignOutAlt /> <span className="hidden sm:inline hover:cursor-pointer">Log out</span>
-          </div>
-        </button>
-      </div>
     </div>
   );
 }

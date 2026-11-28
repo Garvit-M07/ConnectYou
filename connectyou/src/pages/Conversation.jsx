@@ -94,7 +94,8 @@ function Conversation() {
           <h1 className="truncate text-lg font-semibold">{otherName}</h1>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-4 sm:p-6">
+        {/* font-['Exo_2',sans-serif] = readable font that looks like orbitron (loaded in index.html) */}
+        <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-4 font-['Exo_2',sans-serif] sm:p-6">
 
         {messages.length === 0 && (
             <div className="m-auto text-center text-gray-300">
@@ -134,7 +135,7 @@ function Conversation() {
         </div>
 
         <div className="flex items-center gap-2 border-t border-white/10 p-3 sm:p-4">
-          <input aria-label="Message" placeholder="Write a message..."   value={text} onChange={(e) => setText(e.target.value)} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#352f45] px-4 py-3 text-base focus:border-violet-400 focus:outline-none" />
+          <input aria-label="Message" placeholder="Write a message..."   value={text} onChange={e => setText(e.target.value)} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#352f45] px-4 py-3 font-['Exo_2',sans-serif] text-base focus:border-violet-400 focus:outline-none" />
 
           <button onClick={sendMessage} type="button" aria-label="Send message" className="grid size-11 shrink-0 place-items-center rounded-xl bg-violet-600 disabled:opacity-50 hover:cursor-pointer">
             <FaPaperPlane aria-hidden="true" />
