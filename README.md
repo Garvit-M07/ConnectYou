@@ -44,6 +44,10 @@ npm run dev
 - [ ] Connecting people
 - [ ] Chatting Feature
 
+## Scheduled Feature
+
+- [ ] Gemma API integration for better matchmaking
+
 ## Author
 
 Garvit Maheshwari - [github.com/Garvit-M07](https://github.com/Garvit-M07)
