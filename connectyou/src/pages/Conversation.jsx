@@ -28,6 +28,8 @@ function Conversation() {
     const { otherUid: chatId } = useParams();
 
     async function getMessagesAndInfo() {
+        /*here we are fetching the messages, timestamp and sentBy is used to know who sent the message so as to show a 
+        normal messenging type different colour type messages depending on whether the CurrentUser sent the message or the opp person */
         try{
             const chatRef = doc(db, "chats", chatId);
             const snap = await getDoc(chatRef);
@@ -46,6 +48,7 @@ function Conversation() {
     }
 
     useEffect(() => {
+        //we need to fetch the messages initially as well as when the user sends a new message then it should pop up in the screen
         getMessagesAndInfo();
     }, []);   // the [] means: run only once, when the page opens
 
@@ -62,13 +65,15 @@ function Conversation() {
             const newSentBy = [...data.messagesSentBy, auth.currentUser.uid];
             const newTimes = [...data.messagesTimestamp, Date.now()];
 
-        
+            //the document structure is: { messages: [], messagesSentBy: [], messagesTimestamp: [] }
+            // update the document with the new lists
             await updateDoc(chatRef, {
                 messages: newMessages,
                 messagesSentBy: newSentBy,
                 messagesTimestamp: newTimes,
             });
 
+            //updating changes
             setText(""); 
             setMessages(newMessages);
             setSentBy(newSentBy);
